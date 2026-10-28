@@ -101,6 +101,15 @@
       "type": "string",
       "default": "s3://pacbio-datasets/resources/cnv_excluded_regions/annotation_and_common_cnv.hg38.bed.gz"
     },
+    "paraphase_output_dir": {
+      "type": "string",
+      "default": "s3://embedbio-results/hifi-wgs-output/paraphase"
+    },
+    "paraphase_genome": {
+      "type": "string",
+      "default": "38",
+      "enum": ["38", "37", "19", "chm13"]
+    },
     "sawfish_output_dir": {
       "type": "string",
       "default": "s3://embedbio-results/hifi-wgs-output/sawfish2"

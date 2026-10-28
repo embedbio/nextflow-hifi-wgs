@@ -18,6 +18,7 @@ include { HIPHASE_TRIO_PARENTS } from './subworkflows/hiphase_trio_parents'
 include { CPG_TRIO_METHYLATION } from './subworkflows/cpg_trio_methylation'
 include { FASTVEP_ANNOTATE_TRIO_INDIVIDUALS } from './subworkflows/fastvep_trio_individuals'
 include { TRGT_GENOTYPING } from './subworkflows/trgt'
+include { PARAPHASE_GENOTYPING } from './subworkflows/paraphase'
 
 include { mosdepth_run; infer_sex; plot_dist_coverage } from './modules/mosdepth'
 
@@ -33,16 +34,16 @@ workflow {
         println """
         Available workflows:
         1. DEFAULT: nextflow run main.nf --samplesheet samples.csv 
-           Performs read alignment and post-alignment analyses on singletons.
+           Performs read alignment and post-alignment analyses (incl. Paraphase) on singletons.
         2. POST_ALIGNMENT_ONLY: nextflow run main.nf -entry POST_ALIGNMENT_ONLY --samplesheet samples.csv 
-           Runs post-alignment singletons analyses on pre-aligned BAMs.
+           Runs post-alignment singletons analyses (incl. Paraphase) on pre-aligned BAMs.
         3. WGS_TRIO: nextflow run main.nf -entry WGS_TRIO --trio_samplesheet trios.csv 
-           Performs alignment, DeepTrio, Phasing, CpG, and SV calls on unaligned trio inputs.
+           Performs alignment, DeepTrio, Phasing, CpG, SV, TRGT, and Paraphase calls on unaligned trio inputs.
         4. WGS_TRIO_ALIGNED: nextflow run main.nf -entry WGS_TRIO_ALIGNED --trio_aligned_samplesheet trios.csv
-           Performs DeepTrio and downstream pipelines on pre-aligned trio inputs.
+           Performs DeepTrio and downstream pipelines (incl. Paraphase) on pre-aligned trio inputs.
         5. TRIO_FROM_DEEPTRIO: nextflow run main.nf -entry TRIO_FROM_DEEPTRIO --trio_gvcf_samplesheet trios.csv
            Runs GLnexus joint calling, WhatsHap trio phasing, FastVEP annotation, HiPhase parent phasing,
-           and CpG methylation on existing DeepTrio VCFs/gVCFs + pre-aligned BAMs.
+           CpG methylation, and Paraphase on existing DeepTrio VCFs/gVCFs + pre-aligned BAMs.
         """.stripIndent()
         exit 0
     }
@@ -273,6 +274,13 @@ workflow TRIO_FROM_DEEPTRIO {
         file(params.reference),
         file(params.reference_index)
     )
+
+    // Paralog / segmental duplication genotyping on each trio member
+    PARAPHASE_GENOTYPING(
+        individual_aligned_bams,
+        file(params.reference),
+        file(params.reference_index)
+    )
 }
 
 // =========================================================================
@@ -382,6 +390,13 @@ workflow RUN_TRIO_PIPELINE {
         file(params.expected_XY_bed),
         file(params.expected_XX_bed),
         infer_sex.out.sex
+    )
+
+    // Paralog / segmental duplication genotyping on each trio member
+    PARAPHASE_GENOTYPING(
+        individual_aligned_bams,
+        file(params.reference),
+        file(params.reference_index)
     )
 }
 
@@ -506,6 +521,13 @@ workflow POST_ALIGNMENT {
         file(params.expected_XY_bed),
         file(params.expected_XX_bed),
         infer_sex.out.sex
+    )
+
+    // Paralog / segmental duplication genotyping
+    PARAPHASE_GENOTYPING(
+        aligned_bam_ch,
+        file(params.reference),
+        file(params.reference_index)
     )
      
  

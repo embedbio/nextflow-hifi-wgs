@@ -104,7 +104,7 @@ All parameters live in [nextflow.config](nextflow.config) and you can override a
 - **Reference:** `reference`, `reference_index`, and `mmi`, the pbmm2 index used by `WGS_TRIO`
 - **Intervals:** `intervals_dir` (DeepTrio chunk BEDs), `bed_dir` (DeepVariant chunk BEDs), `chromosomes` (chromosomes for GLnexus and WhatsHap), `glnexus_region_bed`
 - **Annotation:** `fastvep_gff`, `fastvep_sa_dir`
-- **SV and repeats:** `expected_XX_bed`, `expected_XY_bed`, `excluded_bed`, `trgt_repeats_bed`, `trgt_max_depth`, `trgt_min_mapq`
+- **SV and repeats:** `expected_XX_bed`, `expected_XY_bed`, `excluded_bed`, `trgt_repeats_bed`, `trgt_max_depth`, `trgt_min_mapq`, `paraphase_genome`
 - **Profiles:**
   - `test`: local executor, 1 CPU and 2 GB per task, Wave and Fusion off. Use with `-stub`.
   - `local`: local executor, with each task capped at `--max_cpus` / `--max_memory`. Wave and Fusion off. Combine with a container profile.
@@ -186,6 +186,7 @@ Outputs are written under `--output_dir`:
 | `cpg/` | pb-CpG-tools BED and bigWig files (combined, hap1, hap2) |
 | `sawfish2/` | sawfish SV calls |
 | `trgt/` | TRGT repeat genotypes |
+| `paraphase/` | Paraphase copy number and haplotype calls for segmental-duplication genes (JSON, realigned BAM, per-region VCFs) |
 
 ## Repository Layout
 ```
@@ -195,7 +196,8 @@ CONTAINERS.md    container image used by each process and entrypoint
 scripts/         sync_local_resources.sh (mirrors the internal S3 resources; needs bucket access)
 Intervals/       generate_bed.py (makes the 50 Mb chunk BEDs from a .fai)
 modules/         processes: pbtools, deepvariant, glnexus, whatshap, fastvep,
-                 samtools, mosdepth, alignment_metrics, ensemblvep
+                 samtools, mosdepth, alignment_metrics, ensemblvep,
+                 paraphase
 subworkflows/
   reference_alignment/          PBMM2_SPOT_WGS, PBMM2_ALIGN
   deepvariant_singleton_wgs/    DEEPVARIANT_SINGLETON_WGS (+ _PARABRICKS)
@@ -208,5 +210,6 @@ subworkflows/
   cpg_trio_methylation/         CPG_TRIO_METHYLATION
   sawfish_trio/                 SAWFISH_TRIO
   trgt/                         TRGT_GENOTYPING
+  paraphase/                    PARAPHASE_GENOTYPING
   concat_and_split_wgs/         CONCAT_AND_SPLIT_WGS
 ```

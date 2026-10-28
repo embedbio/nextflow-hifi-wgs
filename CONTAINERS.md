@@ -27,6 +27,7 @@ Entrypoint columns: **WS** = `WGS_SINGLETON`, **PA** = `POST_ALIGNMENT_ONLY`, **
 | `quay.io/pacbio/pb-cpg-tools:3.0.0_build1` | `cpg_methylation_calling` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `quay.io/pacbio/sawfish:2.2.1_build1` | `sawfish_discover`, `sawfish_joint_call` | ✓ | ✓ | ✓ | ✓ | |
 | `quay.io/pacbio/trgt:5.1.0_build2` | `trgt` | ✓ | ✓ | ✓ | ✓ | |
+| `quay.io/pacbio/paraphase:4.1.0_build1` | `paraphase` | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 Two of these images use floating tags, so a re-pull can change the tool version: `indapa/mosdepth-sex:latest` and `indapa/whatshap-tabix`. To get reproducible runs, pin them to a version tag or digest.
 
