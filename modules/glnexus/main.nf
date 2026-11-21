@@ -13,6 +13,7 @@ process glnexus_trio_by_chrom {
 
     output:
     tuple val(family_id), path("${family_id}.${chrom}.joint.vcf.gz"), path("${family_id}.${chrom}.joint.vcf.gz.tbi"), emit: joint_vcf
+    tuple val("${task.process}"), val('glnexus'), eval('glnexus_cli --help 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def avail_mem = (task.memory.toGiga() * 0.85).toInteger()
@@ -66,6 +67,7 @@ process concat_glnexus_vcf {
 
     output:
     tuple val(family_id), path("${family_id}.joint.vcf.gz"), path("${family_id}.joint.vcf.gz.tbi"), emit: merged
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """

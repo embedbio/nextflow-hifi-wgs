@@ -21,7 +21,7 @@ workflow CPG_TRIO_METHYLATION {
     samtools_index(child_cpg_input_ch)
 
     // Combine child + both parents into one tuple(sample_id, bam, bai) stream
-    all_haplotagged_bam_ch = samtools_index.out.mix(parent_haplotagged_bam_ch)
+    all_haplotagged_bam_ch = samtools_index.out.indexed_bam.mix(parent_haplotagged_bam_ch)
 
     cpg_methylation_calling(
         all_haplotagged_bam_ch,

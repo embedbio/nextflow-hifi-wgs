@@ -14,6 +14,7 @@ process FASTVEP_ANNOTATE_SINGLETON_VCF {
 
     output:
     tuple val(sample_id), path("${sample_id}.annotated.vcf.gz"), emit: annotated_vcf
+    tuple val("${task.process}"), val('fastvep'), eval('fastvep --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -45,7 +46,8 @@ process FASTVEP_ANNOTATE_TRIO_VCF {
     path("sa_dir/*")
 
     output:
-    tuple val(family_id), path("${family_id}.annotated.vcf.gz")
+    tuple val(family_id), path("${family_id}.annotated.vcf.gz"), emit: annotated_vcf
+    tuple val("${task.process}"), val('fastvep'), eval('fastvep --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """

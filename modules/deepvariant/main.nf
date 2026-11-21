@@ -11,8 +11,8 @@ process bcftools_deepvariant_norm {
 
     output:
         tuple val(sample_id), path("${sample_id}.deepvariant.normalized.vcf.gz"), path("${sample_id}.deepvariant.normalized.vcf.gz.tbi"), emit: vcf_tuple
-        
-        
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
+
     script:
     """
     bcftools norm \\
@@ -54,7 +54,8 @@ process deepvariant_targeted_region {
         path "${sample_id}.deepvariant.vcf.gz.tbi", emit: vcf_tbi
         path "${sample_id}.deepvariant.g.vcf.gz", emit: gvcf
         path "${sample_id}.deepvariant.g.vcf.gz.tbi", emit: gvcf_tbi
-        
+    tuple val("${task.process}"), val('deepvariant'), eval('/opt/deepvariant/bin/run_deepvariant --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
+
     script:
     def regions_flag = target_region_string ? "--regions \"${target_region_string}\"" : ""
     """
@@ -111,6 +112,7 @@ process deeptrio_wgs {
         // Parent 2 Outputs (Start with family_id)
         tuple val(family_id), val(p2_id), path("${p2_id}.vcf.gz"), path("${p2_id}.vcf.gz.tbi"), emit: p2_vcf
         tuple val(family_id), val(p2_id), path("${p2_id}.g.vcf.gz"), path("${p2_id}.g.vcf.gz.tbi"), emit: p2_gvcf
+    tuple val("${task.process}"), val('deeptrio'), eval('/opt/deepvariant/bin/deeptrio/run_deeptrio --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     
@@ -169,6 +171,7 @@ process deeptrio_wgs_by_chrom {
     
         tuple val(family_id), val(p2_id),    val(interval_bed.baseName), path("${p2_id}.${interval_bed.baseName}.vcf.gz"),     path("${p2_id}.${interval_bed.baseName}.vcf.gz.tbi"),     emit: p2_vcf
         tuple val(family_id), val(p2_id),    val(interval_bed.baseName), path("${p2_id}.${interval_bed.baseName}.g.vcf.gz"),   path("${p2_id}.${interval_bed.baseName}.g.vcf.gz.tbi"),   emit: p2_gvcf
+    tuple val("${task.process}"), val('deeptrio'), eval('/opt/deepvariant/bin/deeptrio/run_deeptrio --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def model_type = task.ext.model_type ?: 'PACBIO'
@@ -246,6 +249,7 @@ process deeptrio_wgs_50mb_chunk {
     
     tuple val(family_id), val(p2_id),    val(interval_bed.baseName), path("${p2_id}.${interval_bed.baseName}.vcf.gz"),     path("${p2_id}.${interval_bed.baseName}.vcf.gz.tbi"),     emit: p2_vcf
     tuple val(family_id), val(p2_id),    val(interval_bed.baseName), path("${p2_id}.${interval_bed.baseName}.g.vcf.gz"),   path("${p2_id}.${interval_bed.baseName}.g.vcf.gz.tbi"),   emit: p2_gvcf
+    tuple val("${task.process}"), val('deeptrio'), eval('/opt/deepvariant/bin/deeptrio/run_deeptrio --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def model_type = task.ext.model_type ?: 'PACBIO'
@@ -306,6 +310,7 @@ process concat_chrom_chunks_vcf {
 
     output:
     tuple val(meta), path("${meta[1]}.${meta[2]}.merged.${meta[3]}"), path("${meta[1]}.${meta[2]}.merged.${meta[3]}.tbi"), emit: merged_file
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def out_file = "${meta[1]}.${meta[2]}.merged.${meta[3]}"
@@ -354,6 +359,7 @@ process concat_wgs_vcf {
 
     output:
         tuple val(family_id), val(sample_id), path("${sample_id}.${ext}"), path("${sample_id}.${ext}.tbi"), emit: merged
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     // 1. Create a map of staged filenames to make lookups fast and simple
@@ -409,9 +415,7 @@ process concat_chrom_chunks_vcf_singleton {
 
     output:
     tuple val("${meta[0]}"), val("${meta[2]}"), path("${meta[0]}.${meta[1]}.merged.${meta[2]}"), path("${meta[0]}.${meta[1]}.merged.${meta[2]}.tbi"), emit: chrom_merged_file
-
-
-
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def sample_id = meta[0]
@@ -463,6 +467,7 @@ process concat_full_genome_vcf_singleton {
 
     output:
     tuple val(sample_id), path("${sample_id}.deepvariant.${file_type}"), path("${sample_id}.deepvariant.${file_type}.tbi"), emit: genome_vcf
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def out_file = "${sample_id}.deepvariant.${file_type}"
@@ -502,6 +507,7 @@ process deepvariant_wgs_parabricks {
     output:
     tuple val(sample_id), path("${sample_id}.deepvariant.vcf.gz"), path("${sample_id}.deepvariant.vcf.gz.tbi"), emit: vcf
     tuple val(sample_id), path("${sample_id}.deepvariant.g.vcf.gz"), path("${sample_id}.deepvariant.g.vcf.gz.tbi"), emit: gvcf
+    tuple val("${task.process}"), val('parabricks'), eval('pbrun version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def model_type = task.ext.model_type ?: 'pacbio'
@@ -540,7 +546,7 @@ process deepvariant_wgs {
     output:
     tuple val(sample_id), path("${sample_id}.deepvariant.vcf.gz"), path("${sample_id}.deepvariant.vcf.gz.tbi"), emit: vcf_tuple
     tuple val(sample_id), path("${sample_id}.deepvariant.g.vcf.gz"), path("${sample_id}.deepvariant.g.vcf.gz.tbi"), emit: gvcf_tuple
-    
+    tuple val("${task.process}"), val('deepvariant'), eval('/opt/deepvariant/bin/run_deepvariant --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     //def args = task.ext.args ?: ''
@@ -580,6 +586,7 @@ process DEEPVARIANT_CHUNK {
     output:
         tuple val(sample_id), path("${sample_id}.${interval_bed.baseName}.vcf.gz"),   path("${sample_id}.${interval_bed.baseName}.vcf.gz.tbi"),   emit: vcf
         tuple val(sample_id), path("${sample_id}.${interval_bed.baseName}.g.vcf.gz"), path("${sample_id}.${interval_bed.baseName}.g.vcf.gz.tbi"), emit: gvcf
+    tuple val("${task.process}"), val('deepvariant'), eval('/opt/deepvariant/bin/run_deepvariant --version 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def model_type = task.ext.model_type ?: 'PACBIO'

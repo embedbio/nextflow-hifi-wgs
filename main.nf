@@ -68,6 +68,19 @@ workflow {
     else {
         WGS_SINGLETON()
     }
+
+    // Every process emits tuple(process, tool, version) to the 'versions' topic;
+    // dedupe across tasks and write one TSV for the whole run.
+    channel.topic('versions')
+        .unique()
+        .map { proc, tool, version -> "${proc.tokenize(':').last()}\t${tool}\t${version}" }
+        .collectFile(
+            name: 'software_versions.tsv',
+            storeDir: "${params.output_dir}/pipeline_info",
+            seed: "process\ttool\tversion",
+            newLine: true,
+            sort: true
+        )
 }
 // =========================================================================
 //  WORKFLOW: TRIO ANALYSIS ENTRYPOINTS
@@ -423,7 +436,7 @@ workflow POST_ALIGNMENT {
     main:
    
    
-    bam_stats(aligned_bam_ch)
+    bam_stats(aligned_bam_ch.map { sample_id, bam, _bai -> tuple(sample_id, bam) })
 
     mosdepth_run(aligned_bam_ch)
     infer_sex(mosdepth_run.out.summary)

@@ -12,6 +12,7 @@ process mosdepth_run {
     tuple val(sample_id), path("${sample_id}.mosdepth.summary.txt"), emit: summary
     tuple val(sample_id), path("${sample_id}.mosdepth.region.dist.txt"), emit: region_dist
     tuple val(sample_id), path("${sample_id}.regions.bed.gz"), path("${sample_id}.regions.bed.gz.csi"), emit: bed
+    tuple val("${task.process}"), val('mosdepth'), eval('mosdepth --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def args = task.cpus > 1 ? "--threads ${task.cpus - 1}" : ""

@@ -11,7 +11,8 @@ process pbmm2_align {
 
     output:
     tuple val(sample_id), path("${sample_id}.aligned.bam"), path("${sample_id}.aligned.bam.bai"), emit: aligned_bam
-    
+    tuple val("${task.process}"), val('pbmm2'), eval('pbmm2 --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
+
     script:
     // Calculate sort threads as a fraction of total CPUs (common pattern)
     def sort_threads = 4
@@ -62,6 +63,7 @@ process MAKE_PBI {
 
     output:
     tuple val(sample_id), path(unaligned_bam), path("${unaligned_bam}.pbi"), emit: bam_pbi
+    tuple val("${task.process}"), val('pbindex'), eval('pbindex --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     
@@ -94,6 +96,7 @@ process PBMM2_ALIGN_SPOT_CHUNK {
 
     output:
     tuple val(sample_id), path("${sample_id}.chunk_${chunk_id}.bam"), emit: chunk_bam
+    tuple val("${task.process}"), val('pbmm2'), eval('pbmm2 --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def preset     = task.ext.preset ?: 'HIFI'
@@ -134,6 +137,7 @@ process MERGE_SPOT_CHUNKS {
 
     output:
     tuple val(sample_id), path("${sample_id}.aligned.bam"), path("${sample_id}.aligned.bam.bai"), emit: aligned_bam
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -188,6 +192,7 @@ process cpg_methylation_calling {
             path("${sample_id}.hap1.bw"), emit: hap1_bw, optional: true
     tuple val(sample_id),
             path("${sample_id}.hap2.bw"), emit: hap2_bw, optional: true
+    tuple val("${task.process}"), val('pb-cpg-tools'), eval('aligned_bam_to_cpg_scores --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -227,7 +232,8 @@ process sawfish_discover {
        
     output:
     tuple val(sample_id), path("${sample_id}_sawfish_discover", type:'dir'), emit: discover_dir
-        
+    tuple val("${task.process}"), val('sawfish'), eval('sawfish --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
+
     script:
     """
     set -euo pipefail
@@ -263,6 +269,7 @@ process sawfish_joint_call {
     output:
     // Named after family_id to keep outputs unique and trace-friendly
     tuple val(family_id), path("${family_id}_sawfish_joint_call_dir", type: 'dir'), emit: joint_dir
+    tuple val("${task.process}"), val('sawfish'), eval('sawfish --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def sample_args = all_discover_dirs.collect { d -> "--sample $d" }.join(' ')
@@ -307,6 +314,7 @@ process hiphase_small_variants {
     tuple val(sample_id), path("*.phased.vcf.gz"), path("*.phased.vcf.gz.tbi"), emit: phased_vcf 
     tuple val(sample_id), path("*.stats.csv"), path("*.blocks.tsv"), path("*.summary.tsv"), emit: stats
     tuple val(sample_id), path("*.haplotagged.bam"), path("*.haplotagged.bam.bai"), emit: haplotagged_bam
+    tuple val("${task.process}"), val('hiphase'), eval('hiphase --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def basename = vcf.simpleName
@@ -364,6 +372,7 @@ process trgt {
     tuple val(sample_id), path("${sample_id}.trgt.sorted.vcf.gz"), path("${sample_id}.trgt.sorted.vcf.gz.tbi"), emit: repeat_vcf
     path "${sample_id}.trgt.dropouts.txt", emit: dropouts
     path "${sample_id}.stats.txt", emit: stats
+    tuple val("${task.process}"), val('trgt'), eval('trgt --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     def karyotype   = (sex == 'MALE') ? 'XY' : 'XX'

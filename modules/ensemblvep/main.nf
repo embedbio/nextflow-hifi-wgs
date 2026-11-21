@@ -17,7 +17,8 @@ process annotate_vep {
     
     output:
     tuple val(sample_id), path("${outfile}"), path("${outfile}.tbi"), emit: vep_vcf
-    
+    tuple val("${task.process}"), val('ensembl-vep'), eval('vep --help 2>/dev/null | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
+
     script:
     outfile = "${sample_id}.phased.vep.vcf.gz"
     warning_file = "${sample_id}.vep_warnings.txt"

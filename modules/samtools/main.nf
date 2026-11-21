@@ -16,6 +16,7 @@ process slice_trio_bams_by_interval {
           val(p1_id), path("${interval_bed.baseName}.p1.bam"), path("${interval_bed.baseName}.p1.bam.bai"), \
           val(p2_id), path("${interval_bed.baseName}.p2.bam"), path("${interval_bed.baseName}.p2.bam.bai"), \
           path(interval_bed), emit: sliced_trio_package
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -57,6 +58,7 @@ process slice_singleton_bam_by_interval {
           path("${sample_id}.${interval_bed.baseName}.bam.bai"), \
           path(interval_bed), \
           emit: sliced_singleton_package
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -90,6 +92,7 @@ process downsample {
 
     output:
     tuple val(sample_id), path("${sample_id}.${coverage}x.bam"), emit: downsampled_bam
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -122,8 +125,7 @@ process bam_stats {
 
     output:
     tuple val(sample_id), path("${bam}.stats"), emit: stats
-
-
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -150,7 +152,8 @@ process samtools_index{
     tuple val(sample_id), path(bam)
 
     output:
-    tuple val(sample_id), path(bam), path("${bam}.bai")
+    tuple val(sample_id), path(bam), path("${bam}.bai"), emit: indexed_bam
+    tuple val("${task.process}"), val('samtools'), eval('samtools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """

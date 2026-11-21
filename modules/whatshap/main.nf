@@ -21,6 +21,7 @@ process whatshap_trio_phase {
     path "${family_id}.ped", emit: ped_file
     path "${family_id}.blocks.tsv", emit: block_stats 
     path "${family_id}.gtf", emit: block_gtf  
+    tuple val("${task.process}"), val('whatshap'), eval('whatshap --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -79,6 +80,7 @@ process WHATSHAP_PHASE_CHROM {
 
     output:
     tuple val(family_id), path("${family_id}.${chrom}.phased.vcf.gz"), path("${family_id}.${chrom}.phased.vcf.gz.tbi"), emit: phased_vcf
+    tuple val("${task.process}"), val('whatshap'), eval('whatshap --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -117,6 +119,7 @@ process CONCAT_PHASED_VCFS {
 
     output:
     tuple val(family_id), path("${family_id}.trio_phased.vcf.gz"), path("${family_id}.trio_phased.vcf.gz.tbi"), emit: merged_vcf
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -145,6 +148,7 @@ process SPLIT_TRIO_VCF_BY_SAMPLE {
     tuple val(child_id), path("${child_id}.vcf.gz"), emit: child_vcf
     tuple val(p1_id),    path("${p1_id}.vcf.gz"),    emit: p1_vcf
     tuple val(p2_id),    path("${p2_id}.vcf.gz"),    emit: p2_vcf
+    tuple val("${task.process}"), val('bcftools'), eval('bcftools --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
@@ -181,6 +185,7 @@ process WHATSHAP_STATS_HAPLOTAG {
     path "${family_id}.ped", emit: ped_file
     path "${family_id}.blocks.tsv", emit: block_stats
     path "${family_id}.gtf", emit: block_gtf
+    tuple val("${task.process}"), val('whatshap'), eval('whatshap --version 2>&1 | grep -oE "[0-9]+[.][0-9]+([.][0-9]+)?" | head -1'), topic: versions
 
     script:
     """
