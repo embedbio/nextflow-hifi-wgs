@@ -1,0 +1,8 @@
+{
+  "extraKnownMarketplaces": {
+    "nextflow-plugin": {
+      "source": { "source": "github", "repo": "seqeralabs/nextflow-plugin" }
+    }
+  },
+  "enabledPlugins": { "nextflow@nextflow-plugin": true }
+}
